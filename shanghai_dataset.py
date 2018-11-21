@@ -10,8 +10,9 @@ import skimage.io
 class ShanghaiDataset(torch.utils.data.Dataset):
     counts: Dict[int, int]
 
-    def __init__(self, root_dir):
+    def __init__(self, root_dir, transform=None):
         self.root_dir = root_dir
+        self.transform = transform
 
         # TODO load in data from both A and B and treat them into one dataset
 
@@ -33,6 +34,9 @@ class ShanghaiDataset(torch.utils.data.Dataset):
         # TODO maybe read in and cache images for better performance
         image = skimage.io.imread(os.path.join(self.root_dir, "images", self.image_filenames[idx + 1]))
         count = self.counts[idx + 1]
+
+        if self.transform:
+            image = self.transform(image)
 
         return {
             "count": count,
