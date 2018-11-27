@@ -1,6 +1,7 @@
 from digit_net import DigitNet
 
 import torch
+import torch.utils.data
 import torch.nn as nn
 import torch.optim as optim
 import torchvision

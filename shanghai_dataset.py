@@ -14,18 +14,18 @@ class ShanghaiDataset(torch.utils.data.Dataset):
         self.root_dir = root_dir
         self.transform = transform
 
-        # TODO load in data from both A and B and treat them into one dataset
+        # TODO load in data from both A and B and treat them as one dataset
 
         self.counts = {}
         with open(os.path.join(root_dir, "counts.csv"), newline="") as f:
-            reader = csv.reader(f)
-            for (img_id, count) in reader:
+            for (img_id, count) in csv.reader(f):
                 self.counts[int(img_id)] = int(float(count))
 
         self.image_filenames = {}
-        for fname in os.listdir(os.path.join(root_dir, "images")):
-            img_id = int(os.path.splitext(fname)[0].split("_")[-1])
-            self.image_filenames[img_id] = fname
+        image_dir = os.path.join(root_dir, "images")
+        for filename in os.listdir(image_dir):
+            img_id = int(os.path.splitext(filename)[0].split("_")[-1])
+            self.image_filenames[img_id] = filename
 
     def __len__(self):
         return len(self.counts)
@@ -38,7 +38,4 @@ class ShanghaiDataset(torch.utils.data.Dataset):
         if self.transform:
             image = self.transform(image)
 
-        return {
-            "count": count,
-            "image": image
-        }
+        return count, image
