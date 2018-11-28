@@ -8,9 +8,7 @@ import torch.utils.data
 import torchvision.transforms as transforms
 
 def main():
-    transform = transforms.Compose([
-        transforms.ToTensor()
-    ])
+    transform = transforms.ToTensor()
 
     trainset = ShanghaiDataset("data/ShanghaiTech/A/train/", transform=transform)
     net = train_net(trainset, max_epochs=1)
