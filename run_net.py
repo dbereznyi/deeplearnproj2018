@@ -32,7 +32,10 @@ def train_net(trainset, max_epochs=10):
     net = net.to(device)
 
     criterion = torch.nn.MSELoss()
-    optimizer = torch.optim.Adam(net.parameters(), lr=0.00001)
+    learn_rate = 0.0000001
+    optimizer = torch.optim.Adam(net.parameters(), lr=learn_rate, amsgrad=True)
+
+    print("Beginning training with LR={} and {} epoch(s).\n".format(learn_rate, max_epochs))
 
     num_samples = len(trainset)
     for epoch in range(max_epochs):
@@ -59,12 +62,14 @@ def test_net(testset, net):
 
     mse = 0.0  # Mean squared error
 
+    print("Beginning network evaluation on test dataset.\n")
+
     num_samples = len(testset)
     with torch.no_grad():
         for i, (count, image) in enumerate(testloader, 1):
             net_count = net(image)
 
-            print("[{}/{}] Output: {}, Actual: {}".format(i, num_samples, net_count.item(), count.item()))
+            print("[{}/{}] Output: {}, Actual: {}\n".format(i, num_samples, net_count.item(), count.item()))
 
             mse += math.pow(count - net_count, 2)
 
