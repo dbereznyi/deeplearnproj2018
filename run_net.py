@@ -8,10 +8,14 @@ import torch.utils.data
 import torchvision.transforms as transforms
 
 def main():
-    trainset = ShanghaiDataset("data/ShanghaiTech/A/train/", transform=transforms.ToTensor())
+    transform = transforms.Compose([
+        transforms.ToTensor()
+    ])
+
+    trainset = ShanghaiDataset("data/ShanghaiTech/A/train/", transform=transform)
     net = train_net(trainset, max_epochs=1)
 
-    testset = ShanghaiDataset("data/ShanghaiTech/A/test/", transform=transforms.ToTensor())
+    testset = ShanghaiDataset("data/ShanghaiTech/A/test/", transform=transform)
     test_net(testset, net)
 
 
@@ -29,7 +33,7 @@ def train_net(trainset, max_epochs=10):
     net = net.to(device)
 
     criterion = torch.nn.MSELoss()
-    optimizer = torch.optim.Rprop(net.parameters())
+    optimizer = torch.optim.Adam(net.parameters(), lr=0.00001)
 
     num_samples = len(trainset)
     for epoch in range(max_epochs):

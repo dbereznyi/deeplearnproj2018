@@ -5,6 +5,7 @@ import csv
 import os
 import os.path
 import skimage.io
+import skimage.color
 
 
 class ShanghaiDataset(torch.utils.data.Dataset):
@@ -33,6 +34,7 @@ class ShanghaiDataset(torch.utils.data.Dataset):
     def __getitem__(self, idx):
         filepath = os.path.join(self.root_dir, "images", self.image_filenames[idx + 1])
         image = skimage.io.imread(filepath)
+        image = skimage.color.gray2rgb(image)
         count = self.counts[idx + 1]
 
         if self.transform:

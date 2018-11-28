@@ -16,7 +16,7 @@ class TwICE(nn.Module):
         ])
 
     def forward(self, x):
-        print("img_dims: {}x{}".format(x.size()[2], x.size()[3]))
+        print("img_dims: {}".format(x.size()))
 
         counts = [branch.forward(x.clone()) for branch in self.branches]
 
