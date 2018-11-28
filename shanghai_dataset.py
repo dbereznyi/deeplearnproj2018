@@ -31,8 +31,8 @@ class ShanghaiDataset(torch.utils.data.Dataset):
         return len(self.counts)
 
     def __getitem__(self, idx):
-        # TODO maybe read in and cache images for better performance
-        image = skimage.io.imread(os.path.join(self.root_dir, "images", self.image_filenames[idx + 1]))
+        filepath = os.path.join(self.root_dir, "images", self.image_filenames[idx + 1])
+        image = skimage.io.imread(filepath)
         count = self.counts[idx + 1]
 
         if self.transform:

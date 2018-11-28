@@ -1,47 +1,58 @@
 from shanghai_dataset import ShanghaiDataset
 from twice import TwICE
 
+import torch
 import torch.nn
 import torch.optim
 import torch.utils.data
 import torchvision.transforms as transforms
-import math
 
 def main():
-    net = train_net()
-    test_net(net)
+    trainset = ShanghaiDataset("data/ShanghaiTech/A/train/", transform=transforms.ToTensor())
+    net = train_net(trainset, max_epochs=1)
+
+    testset = ShanghaiDataset("data/ShanghaiTech/A/test/", transform=transforms.ToTensor())
+    test_net(testset, net)
 
 
-def train_net(max_epochs=10):
+def train_net(trainset, max_epochs=10):
     """
     Trains a new instance of TwICE from scratch.
     :return: the trained network
     """
-    trainset = ShanghaiDataset("data/ShanghaiTech/A/train/", transform=transforms.ToTensor())
-    trainloader = torch.utils.data.DataLoader(trainset, batch_size=3, shuffle=True, num_workers=2)
+    # Use CUDA GPU if available
+    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+
+    trainloader = torch.utils.data.DataLoader(trainset, batch_size=1, shuffle=False, num_workers=2)
 
     net = TwICE()
+    net = net.to(device)
 
     criterion = torch.nn.MSELoss()
-    optimizer = torch.optim.SGD(net.parameters(), lr=0.001, momentum=0.9)
+    optimizer = torch.optim.Rprop(net.parameters())
 
+    num_samples = len(trainset)
     for epoch in range(max_epochs):
-        for count, image in trainloader:
+        for i, (count, image) in enumerate(trainloader):
+            count = count.to(device)
+            image = image.to(device)
+
             optimizer.zero_grad()
 
             net_count = net(image)
-            loss = criterion(net_count, count)
-            loss.backward()
-            optimizer.step()
 
-    # TODO finish training net
+            print("[{}/{}] Output: {}, Actual: {}\n".format(i, num_samples, net_count.item(), count.item()))
+
+            loss = criterion(net_count, torch.tensor(float(count)))
+            loss.backward()
+
+            optimizer.step()
 
     return net
 
 
-def test_net(net):
-    testset = ShanghaiDataset("data/ShanghaiTech/A/test/", transform=transforms.ToTensor())
-    testloader = torch.utils.data.DataLoader(testset, batch_size=3, shuffle=True, num_workers=2)
+def test_net(testset, net):
+    testloader = torch.utils.data.DataLoader(testset, batch_size=1, shuffle=True, num_workers=2)
 
     # TODO finish
 
