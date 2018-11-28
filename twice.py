@@ -26,6 +26,12 @@ class TwICE(nn.Module):
 
 
 class ConvInt(nn.Module):
+    """
+    A fully-convolutional network similar, taken from "Fully Convolutional Crowd Counting On Highly Congested Scenes",
+    but with parameters for controlling the size of the first and middle kernels.
+
+    Used as the branches of TwICE.
+    """
     def __init__(self, init_kernel, mid_kernel):
         super(ConvInt, self).__init__()
 
