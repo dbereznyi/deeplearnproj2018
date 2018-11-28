@@ -32,6 +32,8 @@ def train_net(trainset, max_epochs=10):
     net = net.to(device)
 
     criterion = torch.nn.MSELoss()
+
+    # TODO Tweak optimiser to converge more accurate & avoid weight decaying
     learn_rate = 0.0000001
     optimizer = torch.optim.Adam(net.parameters(), lr=learn_rate, amsgrad=True)
 
