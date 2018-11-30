@@ -34,7 +34,7 @@ def train_net(trainset, max_epochs=10):
     # Use CUDA GPU if available
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
-    trainloader = torch.utils.data.DataLoader(trainset, batch_size=1, shuffle=False, num_workers=2)
+    trainloader = torch.utils.data.DataLoader(trainset, batch_size=1, shuffle=True, num_workers=2)
 
     net = TwICE()
     net.apply(init_weights)
