@@ -37,13 +37,12 @@ class ConvInt(nn.Module):
 
         self.conv_inits = nn.ModuleList([
             nn.Conv2d(3, 36, init_kernel),
-            nn.Conv2d(36, 72, mid_kernel)
+            nn.Conv2d(36, 48, mid_kernel)
         ])
 
         self.conv_mids = nn.ModuleList([
-            nn.Conv2d(72, 36, mid_kernel),
-            nn.Conv2d(36, 24, mid_kernel),
-            nn.Conv2d(24, 16, mid_kernel),
+            nn.Conv2d(48, 36, mid_kernel),
+            nn.Conv2d(36, 16, mid_kernel),
             nn.Conv2d(16, 1, 1)
         ])
 

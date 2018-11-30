@@ -12,10 +12,15 @@ import time
 def main():
     transform = transforms.ToTensor()
 
-    trainset = ShanghaiDataset("data/ShanghaiTech/A/train/", transform=transform)
-    net = train_net(trainset, max_epochs=1)
+    # trainset = ShanghaiDataset("data/ShanghaiTech/A/train/", transform=transform)
+    # net = train_net(trainset, max_epochs=1)
 
-    torch.save(net.parameters(), "network_{}.pt".format(time.time()))
+    # net_filename = "network_{}.pt".format(time.time())
+    # torch.save(net.state_dict(), net_filename)
+    # print("Saved network to {}.".format(net_filename))
+
+    net = TwICE()
+    net.load_state_dict(torch.load("network_1543557277.915378.pt"))
 
     testset = ShanghaiDataset("data/ShanghaiTech/A/test/", transform=transform)
     test_net(testset, net)
@@ -32,6 +37,7 @@ def train_net(trainset, max_epochs=10):
     trainloader = torch.utils.data.DataLoader(trainset, batch_size=1, shuffle=False, num_workers=2)
 
     net = TwICE()
+    net.apply(init_weights)
     net = net.to(device)
 
     criterion = torch.nn.MSELoss()
@@ -65,6 +71,12 @@ def train_net(trainset, max_epochs=10):
     return net
 
 
+def init_weights(model):
+    if isinstance(model, torch.nn.Conv2d):
+        torch.nn.init.normal_(model.weight.data, std=0.1)
+        torch.nn.init.normal_(model.bias.data, std=0.1)
+
+
 def test_net(testset, net):
     testloader = torch.utils.data.DataLoader(testset, batch_size=1, shuffle=True, num_workers=2)
 
@@ -79,11 +91,11 @@ def test_net(testset, net):
 
             print("[{}/{}] Output: {}, Actual: {}\n".format(i, num_samples, net_count.item(), count.item()))
 
-            mse += math.pow(count - net_count, 2)
+            mse += math.pow(count.float() - net_count, 2)
 
     mse /= num_samples
 
-    print("MSE: {.8}".format(mse))
+    print("MSE: {}".format(mse))
 
 if __name__ == '__main__':
     main()
