@@ -77,7 +77,7 @@ def init_weights(model):
 
 
 def test_net(testset, net):
-    testloader = torch.utils.data.DataLoader(testset, batch_size=1, shuffle=True, num_workers=2)
+    testloader = torch.utils.data.DataLoader(testset, batch_size=1, shuffle=True, num_workers=4)
 
     mse = 0.0  # Mean squared error
 
