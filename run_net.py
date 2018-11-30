@@ -7,12 +7,15 @@ import torch.optim
 import torch.utils.data
 import torchvision.transforms as transforms
 import math
+import time
 
 def main():
     transform = transforms.ToTensor()
 
     trainset = ShanghaiDataset("data/ShanghaiTech/A/train/", transform=transform)
     net = train_net(trainset, max_epochs=1)
+
+    torch.save(net.parameters(), "network_{}.pt".format(time.time()))
 
     testset = ShanghaiDataset("data/ShanghaiTech/A/test/", transform=transform)
     test_net(testset, net)
@@ -35,23 +38,26 @@ def train_net(trainset, max_epochs=10):
 
     # TODO Tweak optimiser to converge more accurate & avoid weight decaying
     learn_rate = 0.0000001
-    optimizer = torch.optim.Adam(net.parameters(), lr=learn_rate, amsgrad=True)
+    optimizer = torch.optim.Rprop(net.parameters(), lr=learn_rate)
 
     print("Beginning training with LR={} and {} epoch(s).\n".format(learn_rate, max_epochs))
 
     num_samples = len(trainset)
     for epoch in range(max_epochs):
         for i, (count, image) in enumerate(trainloader, 1):
-            count = count.to(device)
+            count = count.to(device).float()
             image = image.to(device)
 
             optimizer.zero_grad()
 
+            time_start = time.perf_counter()
             net_count = net(image)
+            time_end = time.perf_counter()
 
-            print("[{}/{}] Output: {}, Actual: {}\n".format(i, num_samples, net_count.item(), count.item()))
+            print("[{}/{}] Output: {}, Actual: {}\n({} sec)\n"
+                  .format(i, num_samples, net_count.item(), count.item(), time_end - time_start))
 
-            loss = criterion(net_count, torch.tensor(float(count)))
+            loss = criterion(net_count, count)
             loss.backward()
 
             optimizer.step()

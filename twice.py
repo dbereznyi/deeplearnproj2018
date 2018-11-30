@@ -10,9 +10,9 @@ class TwICE(nn.Module):
         super(TwICE, self).__init__()
 
         self.branches = nn.ModuleList([
-            ConvInt(12, 9),
-            ConvInt(9, 7),
-            ConvInt(7, 5)
+            ConvInt(7, 7),
+            ConvInt(7, 5),
+            ConvInt(5, 5)
         ])
 
     def forward(self, x):
