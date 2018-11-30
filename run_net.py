@@ -12,15 +12,15 @@ import time
 def main():
     transform = transforms.ToTensor()
 
-    # trainset = ShanghaiDataset("data/ShanghaiTech/A/train/", transform=transform)
-    # net = train_net(trainset, max_epochs=1)
+    trainset = ShanghaiDataset("data/ShanghaiTech/A/train/", transform=transform)
+    net = train_net(trainset, max_epochs=1)
 
-    # net_filename = "network_{}.pt".format(time.time())
-    # torch.save(net.state_dict(), net_filename)
-    # print("Saved network to {}.".format(net_filename))
+    net_filename = "network_{}.pt".format(time.time())
+    torch.save(net.state_dict(), net_filename)
+    print("Saved network to {}.".format(net_filename))
 
-    net = TwICE()
-    net.load_state_dict(torch.load("network_1543557277.915378.pt"))
+    # net = TwICE()
+    # net.load_state_dict(torch.load("network_1543557277.915378.pt"))
 
     testset = ShanghaiDataset("data/ShanghaiTech/A/test/", transform=transform)
     test_net(testset, net)
@@ -34,7 +34,7 @@ def train_net(trainset, max_epochs=10):
     # Use CUDA GPU if available
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
-    trainloader = torch.utils.data.DataLoader(trainset, batch_size=1, shuffle=True, num_workers=2)
+    trainloader = torch.utils.data.DataLoader(trainset, batch_size=1, shuffle=True, num_workers=4)
 
     net = TwICE()
     net.apply(init_weights)
@@ -42,8 +42,7 @@ def train_net(trainset, max_epochs=10):
 
     criterion = torch.nn.MSELoss()
 
-    # TODO Tweak optimiser to converge more accurate & avoid weight decaying
-    learn_rate = 0.0000001
+    learn_rate = 0.000001
     optimizer = torch.optim.Rprop(net.parameters(), lr=learn_rate)
 
     print("Beginning training with LR={} and {} epoch(s).\n".format(learn_rate, max_epochs))
@@ -60,8 +59,8 @@ def train_net(trainset, max_epochs=10):
             net_count = net(image)
             time_end = time.perf_counter()
 
-            print("[{}/{}] Output: {}, Actual: {}\n({} sec)\n"
-                  .format(i, num_samples, net_count.item(), count.item(), time_end - time_start))
+            print("[E#{} {}/{}] Output: {}, Actual: {}\n({} sec)\n"
+                  .format(epoch + 1, i, num_samples, net_count.item(), count.item(), time_end - time_start))
 
             loss = criterion(net_count, count)
             loss.backward()
