@@ -13,7 +13,7 @@ def main():
     transform = transforms.ToTensor()
 
     trainset = ShanghaiDataset("data/ShanghaiTech/A/train/", transform=transform)
-    net = train_net(trainset, max_epochs=1)
+    net = train_net(trainset, max_epochs=10)
 
     net_filename = "network_{}.pt".format(time.time())
     torch.save(net.state_dict(), net_filename)
@@ -42,7 +42,7 @@ def train_net(trainset, max_epochs=10):
 
     criterion = torch.nn.MSELoss()
 
-    learn_rate = 0.000001
+    learn_rate = 1e-7
     optimizer = torch.optim.Rprop(net.parameters(), lr=learn_rate)
 
     print("Beginning training with LR={} and {} epoch(s).\n".format(learn_rate, max_epochs))
@@ -50,22 +50,24 @@ def train_net(trainset, max_epochs=10):
     num_samples = len(trainset)
     for epoch in range(max_epochs):
         for i, (count, image) in enumerate(trainloader, 1):
-            count = count.to(device).float()
-            image = image.to(device)
+            def closure():
+                optimizer.zero_grad()
 
-            optimizer.zero_grad()
+                time_start = time.perf_counter()
+                net_count = net(image)
+                time_end = time.perf_counter()
 
-            time_start = time.perf_counter()
-            net_count = net(image)
-            time_end = time.perf_counter()
+                loss = criterion(net_count, count.float())
+                loss.backward()
 
-            print("[E#{} {}/{}] Output: {}, Actual: {}\n({} sec)\n"
-                  .format(epoch + 1, i, num_samples, net_count.item(), count.item(), time_end - time_start))
+                print("[E#{} {}/{}] Output: {}, Actual: {}\n({} sec)"
+                      .format(epoch + 1, i, num_samples, net_count.item(), count.item(), time_end - time_start))
 
-            loss = criterion(net_count, count)
-            loss.backward()
+                print("Loss (MSE): {}\n".format(loss.item()))
 
-            optimizer.step()
+                return loss
+
+            optimizer.step(closure)
 
     return net
 
